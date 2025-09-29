@@ -1,0 +1,1185 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Controle de Crianças - Espaço Infantil</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    <style>
+        :root {
+            --primary: #4a6fa5;
+            --secondary: #6b8cbc;
+            --light: #f8f9fa;
+            --dark: #343a40;
+            --success: #28a745;
+            --danger: #dc3545;
+            --warning: #ffc107;
+            --info: #17a2b8;
+        }
+        
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+        
+        body {
+            background-color: #f5f7fa;
+            color: var(--dark);
+            line-height: 1.6;
+            padding: 20px;
+        }
+        
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+        
+        header {
+            background-color: var(--primary);
+            color: white;
+            padding: 15px 20px;
+            border-radius: 8px 8px 0 0;
+            margin-bottom: 20px;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+        }
+        
+        h1, h2, h3 {
+            margin-bottom: 15px;
+        }
+        
+        .card {
+            background-color: white;
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            padding: 20px;
+            margin-bottom: 20px;
+        }
+        
+        .row {
+            display: flex;
+            flex-wrap: wrap;
+            margin: 0 -10px;
+        }
+        
+        .col {
+            flex: 1;
+            padding: 0 10px;
+            min-width: 300px;
+        }
+        
+        .form-group {
+            margin-bottom: 15px;
+        }
+        
+        label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: 600;
+        }
+        
+        input, select, textarea {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            font-size: 16px;
+        }
+        
+        button {
+            background-color: var(--primary);
+            color: white;
+            border: none;
+            padding: 10px 15px;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 16px;
+            transition: background-color 0.3s;
+        }
+        
+        button:hover {
+            background-color: var(--secondary);
+        }
+        
+        .btn-success {
+            background-color: var(--success);
+        }
+        
+        .btn-success:hover {
+            background-color: #218838;
+        }
+        
+        .btn-danger {
+            background-color: var(--danger);
+        }
+        
+        .btn-danger:hover {
+            background-color: #c82333;
+        }
+        
+        .btn-warning {
+            background-color: var(--warning);
+            color: var(--dark);
+        }
+        
+        .btn-warning:hover {
+            background-color: #e0a800;
+        }
+        
+        .btn-info {
+            background-color: var(--info);
+        }
+        
+        .btn-info:hover {
+            background-color: #138496;
+        }
+        
+        .btn-sm {
+            padding: 5px 10px;
+            font-size: 14px;
+        }
+        
+        .inline-buttons {
+            display: flex;
+            gap: 10px;
+            margin-top: 10px;
+        }
+        
+        .table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 15px;
+        }
+        
+        .table th, .table td {
+            padding: 12px 15px;
+            text-align: left;
+            border-bottom: 1px solid #ddd;
+        }
+        
+        .table th {
+            background-color: #f8f9fa;
+            font-weight: 600;
+        }
+        
+        .table tr:hover {
+            background-color: #f8f9fa;
+        }
+        
+        .status-badge {
+            display: inline-block;
+            padding: 5px 10px;
+            border-radius: 20px;
+            font-size: 14px;
+            font-weight: 600;
+        }
+        
+        .status-entrada {
+            background-color: #d4edda;
+            color: #155724;
+        }
+        
+        .status-saida {
+            background-color: #f8d7da;
+            color: #721c24;
+        }
+        
+        .alert {
+            padding: 10px 15px;
+            border-radius: 4px;
+            margin: 10px 0;
+        }
+        
+        .alert-success {
+            background-color: #d4edda;
+            color: #155724;
+            border: 1px solid #c3e6cb;
+        }
+        
+        .alert-danger {
+            background-color: #f8d7da;
+            color: #721c24;
+            border: 1px solid #f5c6cb;
+        }
+        
+        .hidden {
+            display: none !important;
+        }
+        
+        .modal {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0,0,0,0.5);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: 1000;
+        }
+        
+        .modal-content {
+            background-color: white;
+            padding: 20px;
+            border-radius: 8px;
+            width: 95%;
+            max-width: 900px;
+            max-height: 90vh;
+            overflow-y: auto;
+            position: relative;
+        }
+        
+        .modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 15px;
+            padding-bottom: 10px;
+            border-bottom: 1px solid #ddd;
+        }
+        
+        .close {
+            font-size: 24px;
+            cursor: pointer;
+            background: none;
+            border: none;
+            color: var(--dark);
+        }
+        
+        .close:hover {
+            color: var(--danger);
+        }
+        
+        .tabs {
+            display: flex;
+            border-bottom: 1px solid #ddd;
+            margin-bottom: 15px;
+        }
+        
+        .tab {
+            padding: 10px 20px;
+            cursor: pointer;
+            border-bottom: 3px solid transparent;
+            background: none;
+            border: none;
+            font-size: 16px;
+        }
+        
+        .tab.active {
+            border-bottom: 3px solid var(--primary);
+            font-weight: 600;
+            color: var(--primary);
+        }
+        
+        .tab-content {
+            display: none;
+        }
+        
+        .tab-content.active {
+            display: block;
+        }
+        
+        /* ESTILOS DE IMPRESSÃO DO PRIMEIRO FORMATO */
+        @media print {
+            body * {
+                visibility: hidden;
+            }
+            .print-section, .print-section * {
+                visibility: visible;
+            }
+            .print-section {
+                position: absolute;
+                left: 0;
+                top: 0;
+                width: 100%;
+            }
+            .no-print {
+                display: none !important;
+            }
+        }
+        
+        .labels-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 10px;
+            margin-top: 20px;
+        }
+        
+        .label {
+            border: 1px dashed #222;
+            padding: 10px;
+            box-sizing: border-box;
+            border-radius: 6px;
+            page-break-inside: avoid;
+            text-align: center;
+        }
+        
+        .label h2 {
+            margin: 0 0 6px 0;
+            font-size: 16px;
+        }
+        
+        .label p {
+            margin: 2px 0;
+            font-size: 14px;
+        }
+        
+        .label-header {
+            font-weight: bold;
+            font-size: 16px;
+            margin-bottom: 8px;
+            color: var(--primary);
+        }
+        
+        .label-subheader {
+            font-weight: bold;
+            font-size: 14px;
+            margin-bottom: 5px;
+        }
+        
+        /* Estilos para cartões de visitas (PDF) */
+        .cartao-visita {
+            width: 85mm;
+            height: 55mm;
+            padding: 8mm;
+            box-sizing: border-box;
+            text-align: center;
+            background-color: white;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            margin: 0;
+            border: 1px dashed #333;
+        }
+        
+        .cartao-visita .titulo {
+            font-size: 18px;
+            font-weight: bold;
+            margin-bottom: 6px;
+            color: var(--primary);
+        }
+        
+        .cartao-visita .subtitulo {
+            font-size: 14px;
+            font-weight: bold;
+            margin-bottom: 8px;
+        }
+        
+        .cartao-visita .info {
+            font-size: 12px;
+            margin: 3px 0;
+            line-height: 1.3;
+        }
+        
+        .cartao-visita .destaque {
+            font-weight: bold;
+        }
+        
+        .presente-item {
+            background-color: #e8f5e8;
+            padding: 10px;
+            margin-bottom: 8px;
+            border-radius: 4px;
+            border-left: 4px solid var(--success);
+        }
+        
+        .tempo-permanencia {
+            font-size: 12px;
+            color: #666;
+            margin-top: 5px;
+        }
+        
+        .id-alfanumerico {
+            font-family: 'Courier New', monospace;
+            font-size: 12px;
+            background: #f8f9fa;
+            padding: 2px 6px;
+            border-radius: 3px;
+            border: 1px solid #ddd;
+        }
+        
+        .action-buttons {
+            display: flex;
+            gap: 5px;
+        }
+        
+        .hora-entrada {
+            font-size: 12px;
+            color: #666;
+            margin-top: 3px;
+        }
+        
+        @media (max-width: 768px) {
+            .col {
+                flex: 100%;
+            }
+            
+            .labels-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .modal-content {
+                width: 98%;
+                padding: 15px;
+            }
+            
+            .action-buttons {
+                flex-direction: column;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>Espaço Infantil CCB - Controle de Entrada/Saída</h1>
+            <p>Sistema de Gerenciamento de Crianças e Impressão de Etiquetas</p>
+        </header>
+        
+        <div class="row">
+            <div class="col">
+                <div class="card">
+                    <h2>Cadastrar Nova Criança</h2>
+                    <form id="form-crianca">
+                        <input type="hidden" id="crianca-id-editar" value="">
+                        <div class="form-group">
+                            <label for="nome">Nome da Criança *</label>
+                            <input type="text" id="nome" required>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label for="responsavel">Nome do Responsável *</label>
+                            <input type="text" id="responsavel" required>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label for="telefone">Telefone do Responsável</label>
+                            <input type="text" id="telefone">
+                        </div>
+                        
+                        <div class="form-group">
+                            <label for="alergias">Alergias / Observações</label>
+                            <textarea id="alergias" rows="3"></textarea>
+                        </div>
+                        
+                        <div class="inline-buttons">
+                            <button type="submit" class="btn-success" id="btn-cadastrar">Cadastrar Criança</button>
+                            <button type="button" class="btn-warning hidden" id="btn-cancelar-edicao">Cancelar Edição</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+            
+            <div class="col">
+                <div class="card">
+                    <h2>Registrar Entrada/Saída</h2>
+                    <div class="form-group">
+                        <label for="crianca-select">Selecionar Criança</label>
+                        <select id="crianca-select">
+                            <option value="">-- Selecione uma criança --</option>
+                        </select>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="tipo-registro">Tipo de Registro</label>
+                        <select id="tipo-registro">
+                            <option value="entrada">Entrada</option>
+                            <option value="saida">Saída</option>
+                        </select>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="observacao">Observação</label>
+                        <input type="text" id="observacao">
+                    </div>
+                    
+                    <div class="inline-buttons">
+                        <button id="btn-registrar" class="btn-success">Registrar</button>
+                        <button id="btn-imprimir-individual" class="btn-info">Imprimir Etiqueta</button>
+                    </div>
+                </div>
+                
+                <div class="card">
+                    <h2>Crianças Presentes</h2>
+                    <div id="lista-presentes">
+                        <p>Nenhuma criança presente no momento.</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="card">
+            <h2>Lista de Crianças Cadastradas</h2>
+            <table class="table" id="tabela-criancas">
+                <thead>
+                    <tr>
+                        <th>ID</th>
+                        <th>Nome</th>
+                        <th>Responsável</th>
+                        <th>Telefone</th>
+                        <th>Alergias</th>
+                        <th>Ações</th>
+                    </tr>
+                </thead>
+                <tbody id="corpo-tabela-criancas">
+                    <!-- Crianças serão inseridas aqui via JavaScript -->
+                </tbody>
+            </table>
+        </div>
+        
+        <div class="card">
+            <h2>Histórico de Registros</h2>
+            <table class="table" id="tabela-registros">
+                <thead>
+                    <tr>
+                        <th>Data/Hora</th>
+                        <th>Criança</th>
+                        <th>ID</th>
+                        <th>Responsável</th>
+                        <th>Tipo</th>
+                        <th>Observação</th>
+                    </tr>
+                </thead>
+                <tbody id="corpo-tabela-registros">
+                    <!-- Registros serão inseridos aqui via JavaScript -->
+                </tbody>
+            </table>
+        </div>
+        
+        <div class="card no-print">
+            <h2>Impressão de Etiquetas</h2>
+            <div class="inline-buttons">
+                <button id="btn-imprimir-todas" class="btn-warning">Imprimir Todas as Crianças</button>
+                <button id="btn-imprimir-presentes" class="btn-info">Imprimir Crianças Presentes</button>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Modal para impressão de etiquetas -->
+    <div id="modal-etiquetas" class="modal hidden">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3>Etiquetas para Impressão</h3>
+                <button class="close">&times;</button>
+            </div>
+            
+            <div class="tabs no-print">
+                <button class="tab active" data-tab="criancas">Etiquetas de Crianças</button>
+                <button class="tab" data-tab="responsaveis">Etiquetas de Responsáveis</button>
+            </div>
+            
+            <div class="tab-content active" id="tab-criancas">
+                <div class="print-section" id="etiquetas-criancas">
+                    <!-- Conteúdo das etiquetas de crianças será inserido aqui -->
+                </div>
+            </div>
+            
+            <div class="tab-content" id="tab-responsaveis">
+                <div class="print-section" id="etiquetas-responsaveis">
+                    <!-- Conteúdo das etiquetas de responsáveis será inserido aqui -->
+                </div>
+            </div>
+            
+            <div class="inline-buttons no-print" style="margin-top: 20px;">
+                <button id="btn-imprimir-modal" class="btn-success">Imprimir</button>
+                <button id="btn-compartilhar-pdf" class="btn-info">Compartilhar PDF</button>
+                <button id="btn-fechar-modal" class="btn-danger">Fechar</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // SISTEMA SIMPLIFICADO
+        let criancas = [];
+        let registros = [];
+
+        // Carregar dados ao iniciar
+        function carregarDados() {
+            try {
+                const dadosCriancas = localStorage.getItem('criancas');
+                const dadosRegistros = localStorage.getItem('registros');
+                
+                if (dadosCriancas) criancas = JSON.parse(dadosCriancas);
+                if (dadosRegistros) registros = JSON.parse(dadosRegistros);
+            } catch (e) {
+                console.log('Erro ao carregar dados:', e);
+            }
+        }
+
+        // Salvar dados
+        function salvarDados() {
+            try {
+                localStorage.setItem('criancas', JSON.stringify(criancas));
+                localStorage.setItem('registros', JSON.stringify(registros));
+            } catch (e) {
+                console.log('Erro ao salvar dados:', e);
+                alert('Erro ao salvar dados!');
+            }
+        }
+
+        // Gerar ID alfanumérico de 8 dígitos
+        function gerarIDAlfanumerico() {
+            const caracteres = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';
+            let id = '';
+            for (let i = 0; i < 8; i++) {
+                id += caracteres.charAt(Math.floor(Math.random() * caracteres.length));
+            }
+            return id;
+        }
+
+        // Atualizar select de crianças
+        function atualizarSelectCriancas() {
+            const select = document.getElementById('crianca-select');
+            select.innerHTML = '<option value="">-- Selecione uma criança --</option>';
+            
+            criancas.forEach(crianca => {
+                const option = document.createElement('option');
+                option.value = crianca.id;
+                option.textContent = `${crianca.nome} (${crianca.responsavel}) - ID: ${crianca.idAlfanumerico}`;
+                select.appendChild(option);
+            });
+        }
+
+        // Atualizar lista de crianças na tabela
+        function atualizarListaCriancas() {
+            const tbody = document.getElementById('corpo-tabela-criancas');
+            tbody.innerHTML = '';
+            
+            if (criancas.length === 0) {
+                tbody.innerHTML = '<tr><td colspan="6" style="text-align: center;">Nenhuma criança cadastrada</td></tr>';
+                return;
+            }
+            
+            criancas.forEach(crianca => {
+                const tr = document.createElement('tr');
+                tr.innerHTML = `
+                    <td><span class="id-alfanumerico">${crianca.idAlfanumerico}</span></td>
+                    <td>${crianca.nome}</td>
+                    <td>${crianca.responsavel}</td>
+                    <td>${crianca.telefone || '-'}</td>
+                    <td>${crianca.alergias || '-'}</td>
+                    <td class="action-buttons">
+                        <button class="btn-info btn-sm" onclick="editarCrianca('${crianca.id}')">Editar</button>
+                        <button class="btn-danger btn-sm" onclick="excluirCrianca('${crianca.id}')">Excluir</button>
+                    </td>
+                `;
+                tbody.appendChild(tr);
+            });
+        }
+
+        // Atualizar lista de presentes
+        function atualizarListaPresentes() {
+            const container = document.getElementById('lista-presentes');
+            const presentes = obterCriancasPresentes();
+            
+            container.innerHTML = '';
+            
+            if (presentes.length === 0) {
+                container.innerHTML = '<p>Nenhuma criança presente no momento.</p>';
+                return;
+            }
+            
+            presentes.forEach(crianca => {
+                const registroEntrada = registros
+                    .filter(r => r.criancaId === crianca.id && r.tipo === 'entrada')
+                    .sort((a, b) => new Date(b.dataHora) - new Date(a.dataHora))[0];
+                
+                const horaEntrada = registroEntrada ? 
+                    new Date(registroEntrada.dataHora).toLocaleTimeString('pt-BR', { 
+                        hour: '2-digit', 
+                        minute: '2-digit' 
+                    }) : 'N/A';
+                
+                const div = document.createElement('div');
+                div.className = 'presente-item';
+                div.innerHTML = `
+                    <strong>${crianca.nome}</strong> - ${crianca.responsavel}
+                    <div class="tempo-permanencia">
+                        ID: <span class="id-alfanumerico">${crianca.idAlfanumerico}</span> | Entrada: ${horaEntrada}
+                    </div>
+                `;
+                container.appendChild(div);
+            });
+        }
+
+        // Obter crianças presentes
+        function obterCriancasPresentes() {
+            return criancas.filter(crianca => {
+                const ultimoRegistro = registros
+                    .filter(r => r.criancaId === crianca.id)
+                    .sort((a, b) => new Date(b.dataHora) - new Date(a.dataHora))[0];
+                
+                return ultimoRegistro && ultimoRegistro.tipo === 'entrada';
+            });
+        }
+
+        // Atualizar histórico
+        function atualizarHistorico() {
+            const tbody = document.getElementById('corpo-tabela-registros');
+            tbody.innerHTML = '';
+            
+            const registrosOrdenados = [...registros].sort((a, b) => 
+                new Date(b.dataHora) - new Date(a.dataHora)
+            );
+            
+            if (registrosOrdenados.length === 0) {
+                tbody.innerHTML = '<tr><td colspan="6" style="text-align: center;">Nenhum registro encontrado</td></tr>';
+                return;
+            }
+            
+            registrosOrdenados.forEach(registro => {
+                const crianca = criancas.find(c => c.id === registro.criancaId);
+                if (!crianca) return;
+                
+                const tr = document.createElement('tr');
+                const dataHora = new Date(registro.dataHora).toLocaleString('pt-BR');
+                
+                tr.innerHTML = `
+                    <td>${dataHora}</td>
+                    <td>${crianca.nome}</td>
+                    <td><span class="id-alfanumerico">${crianca.idAlfanumerico}</span></td>
+                    <td>${crianca.responsavel}</td>
+                    <td><span class="status-badge ${registro.tipo === 'entrada' ? 'status-entrada' : 'status-saida'}">${registro.tipo === 'entrada' ? 'Entrada' : 'Saída'}</span></td>
+                    <td>${registro.observacao || ''}</td>
+                `;
+                tbody.appendChild(tr);
+            });
+        }
+
+        // GERAR ETIQUETAS NO FORMATO SOLICITADO COM TELEFONE DO RESPONSÁVEL
+        function gerarEtiquetas(criancasParaEtiquetas) {
+            const containerCriancas = document.getElementById('etiquetas-criancas');
+            const containerResponsaveis = document.getElementById('etiquetas-responsaveis');
+            
+            containerCriancas.innerHTML = '';
+            containerResponsaveis.innerHTML = '';
+            
+            if (criancasParaEtiquetas.length === 0) {
+                containerCriancas.innerHTML = '<p>Nenhuma criança para gerar etiquetas.</p>';
+                containerResponsaveis.innerHTML = '<p>Nenhuma criança para gerar etiquetas.</p>';
+                return;
+            }
+            
+            // Etiquetas para crianças - NOVO FORMATO COM TELEFONE
+            const gridCriancas = document.createElement('div');
+            gridCriancas.className = 'labels-grid';
+            
+            criancasParaEtiquetas.forEach(crianca => {
+                const label = document.createElement('div');
+                label.className = 'label';
+                
+                // Buscar hora de entrada se a criança estiver presente
+                let horaEntrada = '';
+                if (obterCriancasPresentes().some(c => c.id === crianca.id)) {
+                    const registroEntrada = registros
+                        .filter(r => r.criancaId === crianca.id && r.tipo === 'entrada')
+                        .sort((a, b) => new Date(b.dataHora) - new Date(a.dataHora))[0];
+                    
+                    if (registroEntrada) {
+                        horaEntrada = new Date(registroEntrada.dataHora).toLocaleTimeString('pt-BR', { 
+                            hour: '2-digit', 
+                            minute: '2-digit' 
+                        });
+                    }
+                }
+                
+                label.innerHTML = `
+                    <div class="label-header">ESPAÇO INFANTIL</div>
+                    <div class="label-subheader">CRIANÇA - ID: ${crianca.idAlfanumerico}</div>
+                    <p><strong>Nome:</strong> ${crianca.nome}</p>
+                    <p><strong>Responsável:</strong> ${crianca.responsavel}</p>
+                    <p><strong>Telefone:</strong> ${crianca.telefone || 'Não informado'}</p>
+                    <p><strong>Alergias:</strong> ${crianca.alergias || 'Nenhuma'}</p>
+                    <p><strong>Data:</strong> ${new Date().toLocaleDateString('pt-BR')} ${horaEntrada ? ' - Entrada: ' + horaEntrada : ''}</p>
+                `;
+                
+                gridCriancas.appendChild(label);
+            });
+            
+            containerCriancas.appendChild(gridCriancas);
+            
+            // Etiquetas para responsáveis - NOVO FORMATO
+            const gridResponsaveis = document.createElement('div');
+            gridResponsaveis.className = 'labels-grid';
+            
+            criancasParaEtiquetas.forEach(crianca => {
+                const label = document.createElement('div');
+                label.className = 'label';
+                
+                label.innerHTML = `
+                    <div class="label-header">ESPAÇO INFANTIL</div>
+                    <div class="label-subheader">RESPONSÁVEL</div>
+                    <p><strong>Nome:</strong> ${crianca.responsavel}</p>
+                    <p><strong>Telefone:</strong> ${crianca.telefone || 'Não informado'}</p>
+                    <p><strong>Criança:</strong> ${crianca.nome}</p>
+                    <p><strong>ID:</strong> ${crianca.idAlfanumerico}</p>
+                    <p><strong>Data:</strong> ${new Date().toLocaleDateString('pt-BR')}</p>
+                `;
+                
+                gridResponsaveis.appendChild(label);
+            });
+            
+            containerResponsaveis.appendChild(gridResponsaveis);
+        }
+
+        // Funções do modal
+        function abrirModal() {
+            document.getElementById('modal-etiquetas').classList.remove('hidden');
+            document.body.style.overflow = 'hidden';
+        }
+
+        function fecharModal() {
+            document.getElementById('modal-etiquetas').classList.add('hidden');
+            document.body.style.overflow = 'auto';
+        }
+
+        // Gerar PDF em formato de cartão de visitas COM BORDA TRACEJADA E TELEFONE
+        function gerarPDF() {
+            const { jsPDF } = window.jspdf;
+            
+            // Obter a aba ativa
+            const tabAtiva = document.querySelector('.tab.active').getAttribute('data-tab');
+            const criancasParaPDF = tabAtiva === 'criancas' ? 
+                (document.getElementById('crianca-select').value ? 
+                    [criancas.find(c => c.id === document.getElementById('crianca-select').value)] : 
+                    obterCriancasPresentes()) : 
+                criancas;
+            
+            if (criancasParaPDF.length === 0) {
+                alert('Nenhuma criança selecionada para gerar PDF.');
+                return;
+            }
+            
+            // Criar um PDF para cada criança (uma por página)
+            criancasParaPDF.forEach((crianca, index) => {
+                const doc = new jsPDF({
+                    orientation: 'landscape',
+                    unit: 'mm',
+                    format: [85, 55] // Formato cartão de visita
+                });
+                
+                // Buscar hora de entrada se a criança estiver presente
+                let horaEntrada = '';
+                if (obterCriancasPresentes().some(c => c.id === crianca.id)) {
+                    const registroEntrada = registros
+                        .filter(r => r.criancaId === crianca.id && r.tipo === 'entrada')
+                        .sort((a, b) => new Date(b.dataHora) - new Date(a.dataHora))[0];
+                    
+                    if (registroEntrada) {
+                        horaEntrada = new Date(registroEntrada.dataHora).toLocaleTimeString('pt-BR', { 
+                            hour: '2-digit', 
+                            minute: '2-digit' 
+                        });
+                    }
+                }
+                
+                // Desenhar borda tracejada
+                doc.setDrawColor(100, 100, 100); // Cor cinza
+                doc.setLineWidth(0.5);
+                
+                // Criar borda tracejada manualmente
+                const dashPattern = [2, 2]; // Padrão de traço: 2mm traço, 2mm espaço
+                const pageWidth = 85;
+                const pageHeight = 55;
+                
+                // Desenhar linhas tracejadas para cada lado
+                drawDashedLine(doc, 0, 0, pageWidth, 0, dashPattern); // Topo
+                drawDashedLine(doc, pageWidth, 0, pageWidth, pageHeight, dashPattern); // Direita
+                drawDashedLine(doc, pageWidth, pageHeight, 0, pageHeight, dashPattern); // Base
+                drawDashedLine(doc, 0, pageHeight, 0, 0, dashPattern); // Esquerda
+                
+                // Adicionar conteúdo ao PDF
+                doc.setFontSize(16);
+                doc.setFont(undefined, 'bold');
+                doc.text('ESPAÇO INFANTIL', 42.5, 10, { align: 'center' });
+                
+                doc.setFontSize(12);
+                doc.text(`CRIANÇA - ID: ${crianca.idAlfanumerico}`, 42.5, 16, { align: 'center' });
+                
+                doc.setFontSize(10);
+                doc.setFont(undefined, 'normal');
+                doc.text(`Nome: ${crianca.nome}`, 42.5, 22, { align: 'center' });
+                doc.text(`Responsável: ${crianca.responsavel}`, 42.5, 26, { align: 'center' });
+                doc.text(`Telefone: ${crianca.telefone || 'Não informado'}`, 42.5, 30, { align: 'center' });
+                doc.text(`Alergias: ${crianca.alergias || 'Nenhuma'}`, 42.5, 34, { align: 'center' });
+                
+                const dataAtual = new Date().toLocaleDateString('pt-BR');
+                const textoData = horaEntrada ? 
+                    `Data: ${dataAtual} - Entrada: ${horaEntrada}` : 
+                    `Data: ${dataAtual}`;
+                
+                doc.text(textoData, 42.5, 38, { align: 'center' });
+                
+                // Salvar o PDF
+                const nomeArquivo = `cartao_${crianca.nome.replace(/\s+/g, '_')}_${new Date().toISOString().slice(0, 10)}.pdf`;
+                
+                if (index === 0) {
+                    // Primeira criança - salvar imediatamente
+                    doc.save(nomeArquivo);
+                } else {
+                    // Crianças subsequentes - adicionar como nova página
+                    // (não é possível adicionar páginas após salvar, então criamos um PDF separado)
+                    setTimeout(() => {
+                        doc.save(nomeArquivo);
+                    }, index * 500); // Pequeno delay para evitar conflitos
+                }
+                
+                // Opcional: criar link para compartilhamento via WhatsApp
+                const pdfBlob = doc.output('blob');
+                const pdfUrl = URL.createObjectURL(pdfBlob);
+                
+                // Criar link para compartilhamento (apenas para o primeiro)
+                if (index === 0 && criancasParaPDF.length === 1) {
+                    const linkCompartilhamento = document.createElement('a');
+                    linkCompartilhamento.href = pdfUrl;
+                    linkCompartilhamento.download = nomeArquivo;
+                    // linkCompartilhamento.click(); // Comentado para evitar download automático
+                    
+                    // Limpar URL após um tempo
+                    setTimeout(() => {
+                        URL.revokeObjectURL(pdfUrl);
+                    }, 1000);
+                }
+            });
+            
+            if (criancasParaPDF.length > 1) {
+                alert(`${criancasParaPDF.length} cartões gerados com sucesso!`);
+            } else {
+                alert('Cartão gerado com sucesso!');
+            }
+        }
+
+        // Função auxiliar para desenhar linhas tracejadas
+        function drawDashedLine(doc, x1, y1, x2, y2, dashPattern) {
+            const dx = x2 - x1;
+            const dy = y2 - y1;
+            const distance = Math.sqrt(dx * dx + dy * dy);
+            const dashLength = dashPattern[0];
+            const gapLength = dashPattern[1];
+            const patternLength = dashLength + gapLength;
+            
+            const steps = Math.ceil(distance / patternLength);
+            const stepX = dx / steps;
+            const stepY = dy / steps;
+            
+            for (let i = 0; i < steps; i++) {
+                const startX = x1 + i * stepX;
+                const startY = y1 + i * stepY;
+                const endX = startX + (stepX * dashLength) / patternLength;
+                const endY = startY + (stepY * dashLength) / patternLength;
+                
+                doc.line(startX, startY, endX, endY);
+            }
+        }
+
+        // Funções de editar/excluir
+        function editarCrianca(id) {
+            const crianca = criancas.find(c => c.id === id);
+            if (!crianca) return;
+            
+            document.getElementById('crianca-id-editar').value = crianca.id;
+            document.getElementById('nome').value = crianca.nome;
+            document.getElementById('responsavel').value = crianca.responsavel;
+            document.getElementById('telefone').value = crianca.telefone || '';
+            document.getElementById('alergias').value = crianca.alergias || '';
+            
+            document.getElementById('btn-cadastrar').textContent = 'Atualizar Criança';
+            document.getElementById('btn-cancelar-edicao').classList.remove('hidden');
+            
+            document.getElementById('form-crianca').scrollIntoView({ behavior: 'smooth' });
+        }
+
+        function excluirCrianca(id) {
+            if (!confirm('Tem certeza que deseja excluir esta criança? Todos os registros relacionados também serão excluídos.')) {
+                return;
+            }
+            
+            criancas = criancas.filter(c => c.id !== id);
+            registros = registros.filter(r => r.criancaId !== id);
+            
+            salvarDados();
+            atualizarInterface();
+            alert('Criança excluída com sucesso!');
+        }
+
+        function cancelarEdicao() {
+            document.getElementById('crianca-id-editar').value = '';
+            document.getElementById('form-crianca').reset();
+            document.getElementById('btn-cadastrar').textContent = 'Cadastrar Criança';
+            document.getElementById('btn-cancelar-edicao').classList.add('hidden');
+        }
+
+        // Atualizar toda a interface
+        function atualizarInterface() {
+            atualizarSelectCriancas();
+            atualizarListaCriancas();
+            atualizarListaPresentes();
+            atualizarHistorico();
+        }
+
+        // EVENTOS PRINCIPAIS
+        document.getElementById('form-crianca').addEventListener('submit', function(e) {
+            e.preventDefault();
+            
+            const nome = document.getElementById('nome').value.trim();
+            const responsavel = document.getElementById('responsavel').value.trim();
+            const telefone = document.getElementById('telefone').value.trim();
+            const alergias = document.getElementById('alergias').value.trim();
+            const idEditar = document.getElementById('crianca-id-editar').value;
+            
+            if (!nome || !responsavel) {
+                alert('Por favor, preencha pelo menos o nome da criança e do responsável.');
+                return;
+            }
+            
+            if (idEditar) {
+                // Modo edição
+                const criancaIndex = criancas.findIndex(c => c.id === idEditar);
+                if (criancaIndex !== -1) {
+                    criancas[criancaIndex].nome = nome;
+                    criancas[criancaIndex].responsavel = responsavel;
+                    criancas[criancaIndex].telefone = telefone;
+                    criancas[criancaIndex].alergias = alergias;
+                    
+                    salvarDados();
+                    atualizarInterface();
+                    cancelarEdicao();
+                    alert('Criança atualizada com sucesso!');
+                }
+            } else {
+                // Modo cadastro
+                const idAlfanumerico = gerarIDAlfanumerico();
+                
+                const novaCrianca = {
+                    id: Date.now().toString(),
+                    idAlfanumerico: idAlfanumerico,
+                    nome: nome,
+                    responsavel: responsavel,
+                    telefone: telefone,
+                    alergias: alergias,
+                    dataCadastro: new Date().toISOString()
+                };
+                
+                criancas.push(novaCrianca);
+                salvarDados();
+                atualizarInterface();
+                
+                alert(`Criança cadastrada com sucesso!\nID: ${idAlfanumerico}`);
+                document.getElementById('form-crianca').reset();
+            }
+        });
+
+        document.getElementById('btn-cancelar-edicao').addEventListener('click', cancelarEdicao);
+
+        document.getElementById('btn-registrar').addEventListener('click', function() {
+            const criancaId = document.getElementById('crianca-select').value;
+            const tipo = document.getElementById('tipo-registro').value;
+            const observacao = document.getElementById('observacao').value.trim();
+            
+            if (!criancaId) {
+                alert('Por favor, selecione uma criança.');
+                return;
+            }
+            
+            const crianca = criancas.find(c => c.id === criancaId);
+            if (!crianca) {
+                alert('Criança não encontrada.');
+                return;
+            }
+            
+            const agora = new Date();
+            const dataHora = agora.toISOString();
+            const horaFormatada = agora.toLocaleTimeString('pt-BR', { 
+                hour: '2-digit', 
+                minute: '2-digit' 
+            });
+            
+            const novoRegistro = {
+                id: Date.now().toString(),
+                criancaId: criancaId,
+                tipo: tipo,
+                observacao: observacao || `Registro de ${tipo} às ${horaFormatada}`,
+                dataHora: dataHora,
+                horaEntrada: tipo === 'entrada' ? horaFormatada : null
+            };
+            
+            registros.push(novoRegistro);
+            salvarDados();
+            
+            alert(`Registro de ${tipo} realizado com sucesso para ${crianca.nome} às ${horaFormatada}`);
+            document.getElementById('observacao').value = '';
+            
+            atualizarInterface();
+        });
+
+        // Botões de impressão
+        document.getElementById('btn-imprimir-individual').addEventListener('click', function() {
+            const criancaId = document.getElementById('crianca-select').value;
+            if (!criancaId) {
+                alert('Por favor, selecione uma criança.');
+                return;
+            }
+            const crianca = criancas.find(c => c.id === criancaId);
+            if (crianca) {
+                gerarEtiquetas([crianca]);
+                abrirModal();
+            }
+        });
+
+        document.getElementById('btn-imprimir-todas').addEventListener('click', function() {
+            gerarEtiquetas(criancas);
+            abrirModal();
+        });
+
+        document.getElementById('btn-imprimir-presentes').addEventListener('click', function() {
+            gerarEtiquetas(obterCriancasPresentes());
+            abrirModal();
+        });
+
+        // Modal events
+        document.querySelector('.close').addEventListener('click', fecharModal);
+        document.getElementById('btn-fechar-modal').addEventListener('click', fecharModal);
+        document.getElementById('btn-imprimir-modal').addEventListener('click', function() {
+            window.print();
+        });
+        
+        // Botão para gerar PDF
+        document.getElementById('btn-compartilhar-pdf').addEventListener('click', function() {
+            gerarPDF();
+        });
+
+        document.getElementById('modal-etiquetas').addEventListener('click', function(e) {
+            if (e.target === document.getElementById('modal-etiquetas')) {
+                fecharModal();
+            }
+        });
+
+        // Tabs do modal
+        document.querySelectorAll('.tab').forEach(tab => {
+            tab.addEventListener('click', function() {
+                const tabId = this.getAttribute('data-tab');
+                
+                // Ativar tab clicada
+                document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+                this.classList.add('active');
+                
+                // Mostrar conteúdo da tab
+                document.querySelectorAll('.tab-content').forEach(content => {
+                    content.classList.remove('active');
+                });
+                document.getElementById(`tab-${tabId}`).classList.add('active');
+            });
+        });
+
+        // INICIALIZAÇÃO
+        document.addEventListener('DOMContentLoaded', function() {
+            carregarDados();
+            atualizarInterface();
+        });
+    </script>
+</body>
+</html>
